@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<flow name="capgeminiscenarios_validateEmailId" doc:id="90fe0b27-f3fe-40a4-b7af-ed116db35ef6">
+		<http:listener doc:name="Listener" doc:id="b7de37fb-ce6c-46ed-b171-173281ec3ba2" config-ref="HTTP_Listener_config" path="/validateemail" doc:description='Input Payload:
+
+{
+    "event":"Welcome",
+    "emailid": "testprocess@capgemini.com",
+    "name":"Charan"
+}
+
+URL: http://localhost:8081/validateemail'/>
+		<logger level="INFO" doc:name="Logger" doc:id="8df9bea9-3e94-4acc-a1d8-ddab8b614107" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="21c37200-eafc-4c95-8e17-97d52411b887" >
+			<when expression="#[isEmpty(payload.emailid)]">
+				<logger level="INFO" doc:name="Logger" doc:id="55a9ed89-7dd3-4dc5-8a5f-9bf9bb7a18ac" message='#["Empty EmailID"]'/>
+				<set-payload value='#["Empty EmailID received, request not processed. Resend request with valid Emailid"]' doc:name="Set Payload" doc:id="535f7090-e2ef-4362-907d-a2e59304ab9a" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="47cda59e-7b75-436b-8552-bd6ea7fd6ab5" message='#["Request sent to target system for processing"]'/>
+				<set-payload value='#["Request sent to target system for processing"]' doc:name="Set Payload" doc:id="390f2666-46f2-4466-a3dd-c81da108331d" />
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="Capgeminiscenario_TransformData" doc:id="13e12e2e-5263-4c9e-ae2f-f42da81a8e8f">
+		<http:listener doc:name="Listener" doc:id="eb59eb6b-9f18-47fe-a6ec-09d0a7e526e1" config-ref="HTTP_Listener_config" path="/transformdata"/>
+		<file:read doc:name="Read" doc:id="b6fd0287-dd2f-4199-ad0a-eb33bd91728d" path="C:\Users\Priyanka PM\Desktop\AnypointStudio\ExerciseFiles\csvfile.txt" outputMimeType="application/csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="ff80331d-cd96-4430-aac2-d5f87ca78ebd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable doc:name="Set Variable" doc:id="72c656f9-34a2-4e89-9aa6-7dead0bd6e46" variableName="result" value="#[[]]"/>
+		<foreach doc:name="For Each" doc:id="1cd48344-c12e-43e7-99fc-0516baf8498e" batchSize="3">
+			<ee:transform doc:name="Transform Message" doc:id="06471bf3-f30f-4b5f-b191-75ec59f6d6ec" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(obj,index) ->
+{
+	transactiondetails: vars.counter
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="#[output application/json --- flatten(vars.result ++ [payload])]" doc:name="Set Variable" doc:id="64db733e-0364-44bb-9646-a0b2730d3bdc" variableName="result"/>
+		</foreach>
+		<set-payload value='#[details: vars.result]' doc:name="Set Payload" doc:id="2cf4764c-6958-4720-8524-80a72e86a4c1" />
+	</flow>
+	<flow name="DownloadFilesfromFTPServer" doc:id="65d0b3d6-2a47-437c-bf8c-7eafa36ebf90">
+		<ftp:listener doc:name="On New or Updated File" doc:id="0063a1ac-7894-4cf5-a54f-ffb5b0a0e69c" config-ref="FTP_Config" recursive="false" directory="/input">
+			<scheduling-strategy >
+				<fixed-frequency frequency="20" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</ftp:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="ad3fd57e-7cc2-4ba1-82f1-dae1bbe03552" message="#[payload]"/>
+		<ftp:move doc:name="Move" doc:id="364479d8-3763-4e50-93df-34d43f7ba0a9" config-ref="FTP_Config" sourcePath="#[attributes.path]" targetPath='/testmule/output'/>
+	</flow>
+	<flow name="DownloadfilesfromSFTPServer" doc:id="2655a78a-db30-400d-bb0c-5a2e5fd6cc07">
+		<http:listener doc:name="Listener" doc:id="44d431ae-c162-43c1-bb6d-4bcf95c2ead0" config-ref="HTTP_Listener_config" path="/sftpread"/>
+		<logger level="INFO" doc:name="Logger" doc:id="a57e0e4e-5675-4f6a-aa7a-6b181b2e7b18" message='#["Request received to read data from SFTP Server"]'/>
+		<sftp:read doc:name="Read" doc:id="31720ed8-b231-480c-a5b5-70966e6784d4" config-ref="SFTP_Config" path="/readme.txt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ec9a6b50-9e3d-4d60-8a05-a01481108790" message="#[payload]"/>
+	</flow>
+	<flow name="BulkDataProcessingUsingForEach" doc:id="72e627cb-b034-4dd0-ae9c-2127d3896d7a">
+		<ftp:listener doc:name="On New or Updated File" doc:id="7332dec0-84ca-4e32-8216-54ad480d9314" config-ref="FTP_Config" directory="/testmule/input" timeBetweenSizeCheck="5" timeBetweenSizeCheckUnit="SECONDS">
+			<scheduling-strategy >
+				<fixed-frequency frequency="10000"/>
+			</scheduling-strategy>
+			<ftp:matcher filenamePattern="*.csv" directories="EXCLUDE" updatedInTheLast="10"/>
+		</ftp:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="65ce764e-7ba8-4306-83d6-92bfa26b963f" message='#["New file detected: " ++ attributes.fileName]'/>
+		<ee:transform doc:name="Transform Message" doc:id="d9a3c6ef-194b-4ed1-a397-0785f67c76ef" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="d56b7d0d-1f2f-4654-839d-92a2995a5adf">
+			<ee:transform doc:name="Transform Message" doc:id="2189764e-225a-451b-9581-7a98e18921a3" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+salesrecord:{
+	Region: payload.Region,
+	Country: payload.Country,
+	"Item Type": payload."Item Type",
+	"Sales Channel": payload."Sales Channel",
+	"Order Priority": payload."Order Priority",
+	"Order Date": payload."Order Date",
+	"Order ID": payload."Order ID",
+	"Ship Date": payload."Ship Date",
+	"Units Sold": payload."Units Sold",
+	"Unit Price": payload."Unit Price",
+	"Unit Cost": payload."Unit Cost",
+	"Total Revenue": payload."Total Revenue",
+	"Total Cost": payload."Total Cost",
+	"Total Profit": payload."Total Profit"
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+				</ee:variables>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="0ca27fe8-15e6-41b6-9b8d-1592e90ff1d8" message="#[payload]"/>
+			<jms:publish doc:name="Publish" doc:id="0537299e-dfa3-4b5a-9e4a-08f87b96cc9e" config-ref="JMS_Config" destination="WMTCN.FOREACH.OMS.1" persistentDelivery="true">
+				<jms:message outboundContentType="application/xml" />
+			</jms:publish>
+		</foreach>
+		<ftp:move doc:name="Move" doc:id="c3407c4f-5737-4fc3-899b-beb070a17be3" config-ref="FTP_Config" sourcePath="#[attributes.path]" targetPath='#["/testmule/output/"]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="c484f524-eb9b-4708-ab41-35409311d869" message='#["File moved to path: " ++ attributes.path]'/>
+	</flow>
+	<flow name="BulkDataProcessingUsingBatchJob" doc:id="d8bf940c-10c1-473e-a92f-426443d621d7">
+		<ftp:listener doc:name="On New or Updated File" doc:id="51edf86e-c43e-41be-a5f7-ed407352fedf" config-ref="FTP_Config" directory="/testmule/input" timeBetweenSizeCheck="5" timeBetweenSizeCheckUnit="SECONDS" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10000" />
+			</scheduling-strategy>
+			<ftp:matcher updatedInTheLast="10" filenamePattern="*.csv" directories="EXCLUDE" />
+		</ftp:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="4d9b0392-0f90-4e1f-a12e-a3752ea216ef" message='#["New file detected: " ++ attributes.fileName]' />
+		<ee:transform doc:name="Transform Message" doc:id="427a9d2f-cc5b-4d6c-bad4-bce1bfaa4499" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="interviewscenariosBatch_Job" doc:id="d71149b2-2970-4586-a9fa-eba8d08ece7f" blockSize="300">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="bc2f4be9-9fc1-48ca-a855-6c056906516c" >
+					<ee:transform doc:name="Transform Message" doc:id="59cf9737-a7eb-482d-b224-5f79d199d586">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+salesrecord:{
+	Region: payload.Region,
+	Country: payload.Country,
+	"Item Type": payload."Item Type",
+	"Sales Channel": payload."Sales Channel",
+	"Order Priority": payload."Order Priority",
+	"Order Date": payload."Order Date",
+	"Order ID": payload."Order ID",
+	"Ship Date": payload."Ship Date",
+	"Units Sold": payload."Units Sold",
+	"Unit Price": payload."Unit Price",
+	"Unit Cost": payload."Unit Cost",
+	"Total Revenue": payload."Total Revenue",
+	"Total Cost": payload."Total Cost",
+	"Total Profit": payload."Total Profit"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="7e0bb3fe-bdf6-4855-b3be-2a8c197f7da7" message="#[payload]" />
+					<jms:publish doc:name="Publish" doc:id="89457896-fbf6-4f4e-abe5-80afd18f040a" config-ref="JMS_Config" destination="WMTCN.FOREACH.OMS.1" persistentDelivery="true">
+							<jms:message outboundContentType="application/xml" />
+						</jms:publish>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="3b49f0ce-20dc-4a6d-b577-0994dfcada9b" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+		<ftp:move doc:name="Move" doc:id="88e85056-4350-429a-87d8-a5ca2cdb0239" config-ref="FTP_Config" sourcePath="#[attributes.path]" targetPath='#["/testmule/output/"]' />
+		<logger level="INFO" doc:name="Logger" doc:id="70da3320-e684-458f-91ea-173c9186f3fd" message='#["File moved to path: " ++ attributes.path]' />
+	</flow>
+</mule>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="interviewscenarios-suite.xml" />
+	<munit:test name="capgeminiscenarios_validateEmailId-test" doc:id="7086da7b-2612-45e6-8f99-651184a93b30" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="cc7d3da9-c7d8-4d4f-a947-7f8d1982835a" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://capgeminiscenariosvalidateEmailIdtest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://capgeminiscenariosvalidateEmailIdtest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to capgeminiscenarios_validateEmailId" doc:id="026cb74f-6c76-48eb-a521-5c08c81a7a02" name="capgeminiscenarios_validateEmailId"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="4bd07767-f40e-461a-b729-17a8f4bf4fc4" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import capgeminiscenariosvalidateEmailIdtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="capgeminiscenarios_validatenoEmailId-test" doc:id="9513d523-eb4f-4bce-8c66-267344c4db40" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="b5c8f809-c931-496e-b5c2-2b517a53bdab" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://capgeminiscenariosvalidatenoEmailIdtest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://capgeminiscenariosvalidatenoEmailIdtest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to capgeminiscenarios_validateEmailId" doc:id="755f5e80-78f0-4b8c-9d04-512b99ed7ac0" name="capgeminiscenarios_validateEmailId"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="c7debd40-d26f-4217-8e67-10fd4a1f1598" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import capgeminiscenariosvalidatenoEmailIdtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="Capgeminiscenario_TransformData-test" doc:id="2cb47712-24bc-4b5b-866e-0ac5803ceae4" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="87b528cc-99a0-45f2-9f56-11f12fe57e19" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://CapgeminiscenarioTransformDatatest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://CapgeminiscenarioTransformDatatest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to Capgeminiscenario_TransformData" doc:id="523a50d2-6128-4761-84ee-57e0260fa1e2" name="Capgeminiscenario_TransformData"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="6471a83a-20a7-4e27-b141-d0a8b9ace6c6" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import CapgeminiscenarioTransformDatatest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

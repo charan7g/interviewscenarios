@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="aa289600-7f9a-4e6b-a979-767c6bb07102" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="3a14d1b7-0ae6-4c12-9566-39d59e241670" >
+		<sftp:connection host="test.rebex.net" username="demo" password="password">
+		</sftp:connection>
+	</sftp:config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="683ffc77-bc16-40c2-bfe6-426f6ff47c14" >
+		<ftp:connection host="localhost" username="mule" password="mule" />
+	</ftp:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="a61205f1-435c-4bda-9758-52ff56669b09" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://LAPTOP-HQ8C8PHK:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+</mule>
