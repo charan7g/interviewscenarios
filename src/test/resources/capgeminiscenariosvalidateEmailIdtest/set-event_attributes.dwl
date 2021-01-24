@@ -1,0 +1,31 @@
+{
+  "headers": {
+    "client_id": "7e8ccbe9ab2443f5a1b501f25e95f8f7",
+    "client_secret": "5bE3830FfC09449AbbC60427c3eCD7C9",
+    "grant_type": "CLIENT_CREDENTIALS",
+    "content-type": "application/json",
+    "user-agent": "PostmanRuntime/7.26.8",
+    "accept": "*/*",
+    "postman-token": "90558d61-a560-400d-b86e-428a11f4439b",
+    "host": "localhost:8081",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "183"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "http",
+  "queryParams": {},
+  "requestUri": "/validateemail",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "maskedRequestPath": null,
+  "listenerPath": "/validateemail",
+  "relativePath": "/validateemail",
+  "localAddress": "/127.0.0.1:8081",
+  "uriParams": {},
+  "rawRequestUri": "/validateemail",
+  "rawRequestPath": "/validateemail",
+  "remoteAddress": "/127.0.0.1:59217",
+  "requestPath": "/validateemail"
+}

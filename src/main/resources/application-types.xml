@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="details" format="csv">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type details = Array<{|  BatchID: String,   serialNo: String,   category: String|}>
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="SalesData" format="csv">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: array
+items:
+    properties:
+        Region:
+            type: string
+        Country:
+            type: string
+        Item Type:
+            type: string
+        Sales Channel:
+            type: string
+        Order Priority:
+            type: string
+        Order Date:
+            type: string
+        Order ID:
+            type: number
+        Ship Date:
+            type: string
+        Units Sold:
+            type: number
+        Unit Price:
+            type: number
+        Unit Cost:
+            type: number
+        Total Revenue:
+            type: number
+        Total Cost:
+            type: number
+        Total Profit:
+            type: number]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#b416b5d3-6c29-4268-aaf5-3ada0826d5d4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="details"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ff80331d-cd96-4430-aac2-d5f87ca78ebd">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="details"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d9a3c6ef-194b-4ed1-a397-0785f67c76ef">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="SalesData"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#2189764e-225a-451b-9581-7a98e18921a3">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="SalesData"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
